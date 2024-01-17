@@ -53,4 +53,4 @@ jobs:
             - name: build and push website container
               working-directory: src
               run: | 
-                  docker buildx build --push --platform linux/amd64,linux/arm64,linux/arm/v7 -f "./RandomQuotes.Web/Dockerfile" --tag octopussamples/randomquotes-k8s:${{ steps.determine_version.outputs.semVer }} --tag octopussamples/randomquotes-k8s:latest .                 
+                  docker buildx build --push --platform linux/amd64,linux/arm64,linux/arm/v7 -f "./RandomQuotes.Web/Dockerfile" --tag bobjwalker99/randomquotes-k8s:${{ steps.determine_version.outputs.semVer }} --tag bobjwalker99/randomquotes-k8s:latest .                 
