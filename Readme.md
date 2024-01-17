@@ -84,9 +84,11 @@ This will install ArgoCD on your cluster.  Perfect for poking around!
     - Run `kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml`
 - To access ArgoCD UI
     - Run `kubectl port-forward svc/argocd-server -n argocd 8080:443`
-    - **Important** The port forwarding will only work while that window is open.
-    - If you want to, you can mess with ingress rules, but this is the quick and dirty approach to getting going.
+        - **Important** The port forwarding will only work while that window is open.
+        - If you want to, you can mess with ingress rules, but this is the quick and dirty approach to getting going.
     - To login
+        - URL is https://localhost:8080
+        - You will likely get a cert error, go ahead and proceed
         - Username is admin
         - Run `kubectl get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' --namespace argocd` to get the password.  
         - Please note it is base64, which you will need to decode.  You can do that via an online editor, or PowerShell `[System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String("blahblahblah"))`
