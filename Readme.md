@@ -36,7 +36,7 @@ Using your cloud instance of choice do the following:
 - Ensure you have the following environments: "Development", "Test", "Staging", "Production"
 - Install a tentacle to connect to Octopus Deploy
     - Option A: Install a polling tentacle directly on your machine (preferred and easiest).
-    - Option B: Run the tentacle as a docker container.  Run `docker run --env ServerApiKey=YOUR_API_KEY --env ServerUrl=YOUR_SERVER_URL --env Space=Default --env TargetWorkerPool="Local K8s Worker Pool" --env ACCEPT_EULA=Y --env DISABLE_DIND=N --env ServerPort=10943 --env TargetName="Docker Worker" --platform linux/amd64 --privileged octopusdeploy/tentacle:8.1.563` 
+    - Option B: Run the tentacle as a docker container.  A custom image with kubectl has been pre-created.  Run `docker run --env ServerApiKey=YOUR_API_KEY --env ServerUrl=YOUR_SERVER_URL --env Space=Default --env TargetWorkerPool="Local K8s Worker Pool" --env ACCEPT_EULA=Y --env DISABLE_DIND=N --env ServerPort=10943 --env TargetName="Docker Worker" --platform linux/amd64 mcasperson/tentacle` 
     - Option C: Run the tentacle from Kubernetes.  
         - In a file explorer, go to `octopus-tentacle.yaml` file and replace `YOUR_API_KEY` and `YOUR_SERVER_URL` with your API key and server URL.
         - Run `kubectl apply -f octopus-tentacle.yaml`
@@ -204,7 +204,7 @@ This activity will happen only if we have enough time.  We will install and conf
 - Configure first application 
     - Click the `New App` button
     - Application Name: `randomquotes-dev`
-    - Project Name: `Default`
+    - Project Name: `default`
     - Repository URL: `https://github.com/OctopusSamples/RandomQuotes-K8s.git`    
     - Paths: `k8s/overlays/dev`
     - Cluster Url: `https://kubernetes.default.svc`
