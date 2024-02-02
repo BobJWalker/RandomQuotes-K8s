@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: randomquotes-web
-          image: octopussamples/randomquotes-k8s:0.1.32
+          image: bobjwalker99/randomquotes-k8s:0.1.33-versiondisplay.2
           resources:
             requests:
               memory: "64Mi"
@@ -31,7 +31,9 @@ spec:
              valueFrom:
                secretKeyRef:
                  name: random-quotes-secrets
-                 key: homepageDisplay          
+                 key: homepageDisplay
+           - name: RANDOM_VERSION_NUMBER
+             value: 0.1.33-versiondisplay.2       
 ---
 apiVersion: v1
 kind: Service
