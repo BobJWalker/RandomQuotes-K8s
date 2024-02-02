@@ -38,7 +38,9 @@
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; @DateTime.Now.Year - RandomQuotes - RandomQuotes Phrase: @Environment.GetEnvironmentVariable("RANDOM_SECRET_PHRASE")
+            &copy; @DateTime.Now.Year - RandomQuotes <br />
+            Version: @Environment.GetEnvironmentVariable("RANDOM_VERSION_NUMBER") <br />
+            RandomQuotes Phrase: @Environment.GetEnvironmentVariable("RANDOM_SECRET_PHRASE")
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
