@@ -41,6 +41,25 @@ jobs:
               uses: gittools/actions/gitversion/execute@v0.9.14
               with:
                   additionalArguments: /overrideconfig mode=Mainline
+            - id: EnvOverlay
+              name: Set Release Number
+              run: |                              
+                    $branchName = (((${env:GITHUB_REF} -replace "refs/heads/", "") -replace "feature/", "") -replace "bugfix/", "") -replace " ", ""
+                    Write-Host "The Branch Name is: $branchName"
+          
+                    $environmentName = "test"
+                    Write-Host "The environment name is now $environmentName"                                        
+          
+                    if ($branchName -ne "main")
+                    {
+                        Write-Host "The branch is not the main branch, using the feature branch settings instead."
+                        
+                        $environmentName = "dev"
+                    }
+          
+                    Write-Host "Setting the Output Variable KUSTOMIZE_ENVIRONMENT to $environmentName"
+                    Write-Output "KUSTOMIZE_ENVIRONMENT=$environmentName" >> $Env:GITHUB_OUTPUT                   
+              shell: pwsh
             - name: Login to Docker Hub
               uses: docker/login-action@v2
               with:
@@ -58,15 +77,9 @@ jobs:
             - name: update dev kustomize              
               uses: mikefarah/yq@master              
               with:
-                cmd: yq -i '.images.[0].newTag = "${{ steps.determine_version.outputs.semVer }}"' 'k8s/overlays/dev/kustomization.yaml'
+                cmd: yq -i '.images.[0].newTag = "${{ steps.determine_version.outputs.semVer }}"' 'k8s/overlays/${{ steps.EnvOverlay.outputs.KUSTOMIZE_ENVIRONMENT }}/kustomization.yaml'
             - name: commit the kustomize change
               uses: devops-infra/action-commit-push@master
               with:
                 github_token: "${{ secrets.GITHUB_TOKEN }}"
-                commit_message: "Updating the dev Kustomize overlay to ${{ steps.determine_version.outputs.semVer }}"
-            - name: update tag
-              uses: richardsimko/update-tag@v1
-              with:
-                tag_name: dev-argo
-              env: 
-                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                commit_message: "Updating the ${{ steps.EnvOverlay.outputs.KUSTOMIZE_ENVIRONMENT }} Kustomize overlay to ${{ steps.determine_version.outputs.semVer }}"
