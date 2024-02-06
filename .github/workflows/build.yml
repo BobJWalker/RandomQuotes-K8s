@@ -64,3 +64,9 @@ jobs:
               with:
                 github_token: "${{ secrets.GITHUB_TOKEN }}"
                 commit_message: "Updating the dev Kustomize overlay to ${{ steps.determine_version.outputs.semVer }}"
+            - name: update tag
+              uses: richardsimko/update-tag@v1
+              with:
+                tag_name: dev-argo
+              env: 
+                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
