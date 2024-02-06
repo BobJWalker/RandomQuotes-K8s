@@ -7,15 +7,16 @@ EXPOSE 8080
 
 FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG TARGETARCH
+ARG APP_VERSION="0.0.1"
 WORKDIR /src
 COPY ["RandomQuotes.Web/RandomQuotes.Web.csproj", "RandomQuotes.Web/"]
 RUN dotnet restore "RandomQuotes.Web/RandomQuotes.Web.csproj" -a $TARGETARCH
 COPY . .
 WORKDIR "/src/RandomQuotes.Web"
-RUN dotnet build "RandomQuotes.Web.csproj" -c Release -o /app/build -a $TARGETARCH
+RUN dotnet build "RandomQuotes.Web.csproj" -c Release -o /app/build /p:Version=$APP_VERSION -a $TARGETARCH
 
 FROM build AS publish
-RUN dotnet publish "RandomQuotes.Web.csproj" -c Release -o /app/publish /p:UseAppHost=false -a $TARGETARCH
+RUN dotnet publish "RandomQuotes.Web.csproj" -c Release -o /app/publish /p:UseAppHost=false /p:Version=$APP_VERSION -a $TARGETARCH
 
 FROM base AS final
 WORKDIR /app
