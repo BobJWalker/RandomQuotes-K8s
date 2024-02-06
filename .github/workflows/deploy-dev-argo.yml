@@ -5,7 +5,7 @@ on:
       branches:         
         - 'feature/**'        
       paths:          
-          - 'k8s/overlays/dev/**'
+        - 'k8s/overlays/dev/**'
     workflow_dispatch:
 
 jobs:
