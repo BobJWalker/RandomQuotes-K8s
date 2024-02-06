@@ -1,17 +1,17 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-namespace: testing
+namespace: test
 resources:
 - ../../base
 
 secretGenerator:
   - name: random-quotes-secrets
     literals:
-      - homepageDisplay="blah test"
+      - homepageDisplay="dev kustomize overlay"
 
 images:
- - name: octopussamples/randomquotes-k8s
-   newName: octopussamples/randomquotes-k8s
+ - name: bobjwalker99/randomquotes-k8s
+   newName: bobjwalker99/randomquotes-k8s
    newTag: "0.1.5"
 
 patches:

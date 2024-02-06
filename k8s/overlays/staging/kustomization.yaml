@@ -7,11 +7,11 @@ resources:
 secretGenerator:
   - name: random-quotes-secrets
     literals:
-      - homepageDisplay="blah staging"
+      - homepageDisplay="staging kustomize overlay"
 
 images:
- - name: octopussamples/randomquotes-k8s
-   newName: octopussamples/randomquotes-k8s
+ - name: bobjwalker99/randomquotes-k8s
+   newName: bobjwalker99/randomquotes-k8s
    newTag: "0.1.5"
 
 patches:
