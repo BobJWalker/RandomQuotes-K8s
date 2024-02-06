@@ -58,7 +58,7 @@ jobs:
             - name: update dev kustomize              
               uses: mikefarah/yq@master              
               with:
-                cmd: yq -i 'images.[0].newTag="${{ steps.determine_version.outputs.semVer }}"' 'k8s/overlays/dev/kustomization.yaml'
+                cmd: yq -i '.images.[0].newTag = "${{ steps.determine_version.outputs.semVer }}"' 'k8s/overlays/dev/kustomization.yaml'
             - name: commit the kustomize change
               uses: devops-infra/action-commit-push@master
               with:
