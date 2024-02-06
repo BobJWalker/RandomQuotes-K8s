@@ -83,3 +83,11 @@ jobs:
               with:
                 github_token: "${{ secrets.GITHUB_TOKEN }}"
                 commit_message: "Updating the ${{ steps.EnvOverlay.outputs.KUSTOMIZE_ENVIRONMENT }} Kustomize overlay to ${{ steps.determine_version.outputs.semVer }}"
+                runs-on: ubuntu-latest  
+                steps:  
+            - name: update tag
+              uses: richardsimko/update-tag@v1
+              with:
+                tag_name: ${{ steps.determine_version.outputs.semVer }}
+              env: 
+                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
