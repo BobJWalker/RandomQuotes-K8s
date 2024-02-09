@@ -6,13 +6,6 @@ on:
         - 'feature/**'        
       paths:          
         - 'k8s/overlays/dev/**'
-    pull_request:
-      types:
-        - opened
-        - reopened
-        - synchronize
-      paths:        
-        - 'k8s/overlays/dev/**'
     workflow_dispatch:
 
 jobs:

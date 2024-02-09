@@ -8,19 +8,7 @@ on:
       paths:
           - 'src/**'
           - '.github/workflows/build.yml'
-
-    pull_request:
-      types:
-        - opened
-        - reopened        
-      paths:
-        - 'src/**'
-        - '.github/**'
     workflow_dispatch:
-
-concurrency:
-  group: ${{ github.head_ref || github.ref_name }} 
-  cancel-in-progress: true
 
 jobs:
     build-and-push-application:
