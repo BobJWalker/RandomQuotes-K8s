@@ -5,11 +5,11 @@ on:
       branches:         
         - 'feature/**'        
       paths:          
-        - 'k8s/overlays/dev/**'
+        - 'k8s/overlays/dev/kustomization.yaml'
     workflow_dispatch:
 
 jobs:
-    build-and-push-application:
+    update-argo-tag:
         runs-on: ubuntu-latest  
         steps:  
         - name: update tag
