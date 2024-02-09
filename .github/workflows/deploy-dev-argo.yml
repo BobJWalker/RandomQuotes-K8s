@@ -1,27 +1,19 @@
 name: Deploy Dev Argo
 
 on:
-    push:
-      branches:         
-        - 'feature/**'        
-      paths:          
-        - 'k8s/overlays/dev/**'
-    pull_request:
-      types:
-        - opened
-        - reopened
-        - synchronize
-      paths:        
-        - 'k8s/overlays/dev/**'
-    workflow_dispatch:
+  workflow_run:
+    workflows: [Build Container]
+    types: [completed]
+    branches: [feature/**]
+  workflow_dispatch:
 
 jobs:
-    build-and-push-application:
-        runs-on: ubuntu-latest  
-        steps:  
-        - name: update tag
-          uses: richardsimko/update-tag@v1
-          with:
-            tag_name: dev-argo
-          env: 
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  update-argo-tag:
+    runs-on: ubuntu-latest  
+    steps:  
+    - name: update tag
+      uses: richardsimko/update-tag@v1
+      with:
+        tag_name: dev-argo
+      env: 
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -8,19 +8,7 @@ on:
       paths:
           - 'src/**'
           - '.github/workflows/build.yml'
-
-    pull_request:
-      types:
-        - opened
-        - reopened        
-      paths:
-        - 'src/**'
-        - '.github/**'
     workflow_dispatch:
-
-concurrency:
-  group: ${{ github.head_ref || github.ref_name }} 
-  cancel-in-progress: true
 
 jobs:
     build-and-push-application:
@@ -45,6 +33,12 @@ jobs:
               uses: gittools/actions/gitversion/execute@v0.9.14
               with:
                   additionalArguments: /overrideconfig mode=Mainline
+            - name: update tag
+              uses: richardsimko/update-tag@v1
+              with:
+                tag_name: ${{ steps.determine_version.outputs.semVer }}
+              env: 
+                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             - id: EnvOverlay
               name: Set Release Number
               run: |                              
@@ -86,12 +80,4 @@ jobs:
               uses: devops-infra/action-commit-push@master
               with:
                 github_token: "${{ secrets.GITHUB_TOKEN }}"
-                commit_message: "Updating the ${{ steps.EnvOverlay.outputs.KUSTOMIZE_ENVIRONMENT }} Kustomize overlay to ${{ steps.determine_version.outputs.semVer }}"
-                runs-on: ubuntu-latest  
-                steps:  
-            - name: update tag
-              uses: richardsimko/update-tag@v1
-              with:
-                tag_name: ${{ steps.determine_version.outputs.semVer }}
-              env: 
-                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                commit_message: "Updating the ${{ steps.EnvOverlay.outputs.KUSTOMIZE_ENVIRONMENT }} Kustomize overlay to ${{ steps.determine_version.outputs.semVer }}"                            
