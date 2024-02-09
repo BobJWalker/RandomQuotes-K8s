@@ -1,10 +1,11 @@
 name: Deploy Dev Argo
 
 on:
-    push:              
-      paths:          
-        - 'k8s/overlays/dev/kustomization.yaml'
-    workflow_dispatch:
+  workflow_run:
+    workflows: [Build Container]
+    types: [completed]
+    branches: [feature/**]
+  workflow_dispatch:
 
 jobs:
   update-argo-tag:
