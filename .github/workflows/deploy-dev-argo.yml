@@ -1,20 +1,18 @@
 name: Deploy Dev Argo
 
 on:
-    push:
-      branches:         
-        - 'feature/**'        
+    push:              
       paths:          
         - 'k8s/overlays/dev/kustomization.yaml'
     workflow_dispatch:
 
 jobs:
-    update-argo-tag:
-        runs-on: ubuntu-latest  
-        steps:  
-        - name: update tag
-          uses: richardsimko/update-tag@v1
-          with:
-            tag_name: dev-argo
-          env: 
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  update-argo-tag:
+    runs-on: ubuntu-latest  
+    steps:  
+    - name: update tag
+      uses: richardsimko/update-tag@v1
+      with:
+        tag_name: dev-argo
+      env: 
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
