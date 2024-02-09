@@ -10,10 +10,13 @@ on:
 jobs:
   update-argo-tag:
     runs-on: ubuntu-latest  
-    steps:  
-    - name: update tag
-      uses: richardsimko/update-tag@v1
-      with:
-        tag_name: dev-argo
-      env: 
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: rickstaa/action-create-tag@v1
+        id: "tag_create"
+        with:
+          tag: "dev-argo"
+          tag_exists_error: false
+          force_push_tag: true          

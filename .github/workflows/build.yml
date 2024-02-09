@@ -63,7 +63,7 @@ jobs:
               with:
                 cmd: yq -i '.images.[0].newTag = "${{ steps.determine_version.outputs.semVer }}"' 'k8s/overlays/test/kustomization.yaml'
               if: github.ref == 'refs/heads/master'
-            - name: commit the kustomize change
+            - name: commit the kustomize change for Argo
               uses: devops-infra/action-commit-push@master
               with:
                 github_token: "${{ secrets.GITHUB_TOKEN }}"
