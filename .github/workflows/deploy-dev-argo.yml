@@ -11,12 +11,8 @@ jobs:
   update-argo-tag:
     runs-on: ubuntu-latest  
     steps:
-      - uses: actions/checkout@v4
+      - name: "Update tag"
+        uses: jimeh/update-tags-action@v1
         with:
-          fetch-depth: 0
-      - uses: rickstaa/action-create-tag@v1
-        id: "tag_create"
-        with:
-          tag: "dev-argo"
-          tag_exists_error: false
-          force_push_tag: true          
+          tags: |
+            "dev-argo"
