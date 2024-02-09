@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: randomquotes-web
-          image: bobjwalker99/randomquotes-k8s:0.1.33-versiondisplay.4
+          image: bobjwalker99/randomquotes-k8s:0.1.44
           resources:
             requests:
               memory: "64Mi"
