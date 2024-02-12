@@ -1,11 +1,12 @@
 name: Deploy Dev Argo
 
 on:
-  workflow_run:
-    workflows: [Build Container]
-    types: [completed]
-    branches: [feature/**]
-  workflow_dispatch:
+    push:
+      branches:         
+        - 'feature/**'        
+      paths:          
+          - 'k8s/overlays/dev/**'
+    workflow_dispatch:
 
 jobs:
   update-argo-tag:
