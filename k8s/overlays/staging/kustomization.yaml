@@ -12,7 +12,7 @@ secretGenerator:
 images:
  - name: bobjwalker99/randomquotes-k8s
    newName: bobjwalker99/randomquotes-k8s
-   newTag: "0.1.46"
+   newTag: "0.1.60"
 
 patches:
  - target:
