@@ -66,9 +66,10 @@ jobs:
                 git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY                
                 git checkout "${GITHUB_REF:11}"                
                 git stage 'k8s/overlays/dev/kustomization.yaml'
-                git commit -am "Automated report"
+                git commit -am "Updating dev overlay file to ${{ steps.determine_version.outputs.semVer }}"
                 git tag 'dev-argo' --force
-                git push --set-upstream origin ${GITHUB_REF:11}             
+                git push --set-upstream origin ${GITHUB_REF:11} 
+                git push origin 'dev-argo' --force            
               if: contains(github.ref, 'feature')
             - name: update test kustomize overlay             
               uses: mikefarah/yq@master              
