@@ -58,13 +58,24 @@ jobs:
               with:
                 cmd: yq -i '.images.[0].newTag = "${{ steps.determine_version.outputs.semVer }}"' 'k8s/overlays/dev/kustomization.yaml'
               if: contains(github.ref, 'feature')
+            - id: commit_dev_kustomize_change
+              name: commit the dev kustomize change
+              uses: EndBug/add-and-commit@v9
+              with:
+                add: 'k8s/overlays/dev/kustomization.yaml'
+                message: 'Updating dev overlay image tag to ${{ steps.determine_version.outputs.semVer }}'
+                tag: 'dev-argo'
+                tag_push: '--force'
+              if: contains(github.ref, 'feature')
             - name: update test kustomize overlay             
               uses: mikefarah/yq@master              
               with:
                 cmd: yq -i '.images.[0].newTag = "${{ steps.determine_version.outputs.semVer }}"' 'k8s/overlays/test/kustomization.yaml'
-              if: github.ref == 'refs/heads/main'
-            - name: commit the kustomize change for Argo to trigger
-              uses: devops-infra/action-commit-push@master
+              if: github.ref == 'refs/heads/main'            
+            - id: commit_test_kustomize_change
+              name: commit the test kustomize change
+              uses: EndBug/add-and-commit@v9
               with:
-                github_token: "${{ secrets.GITHUB_TOKEN }}"
-                commit_message: "Updating the ${{ steps.EnvOverlay.outputs.KUSTOMIZE_ENVIRONMENT }} Kustomize overlay to ${{ steps.determine_version.outputs.semVer }}"                            
+                add: 'k8s/overlays/test/kustomization.yaml'
+                message: 'Updating test overlay image tag to ${{ steps.determine_version.outputs.semVer }}'
+              if: github.ref == 'refs/heads/main'
