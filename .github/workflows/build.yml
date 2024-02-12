@@ -78,8 +78,12 @@ jobs:
               if: github.ref == 'refs/heads/main'            
             - id: commit_test_kustomize_change
               name: commit the test kustomize change
-              uses: EndBug/add-and-commit@v9
-              with:
-                add: 'k8s/overlays/test/kustomization.yaml'
-                message: 'Updating test overlay image tag to ${{ steps.determine_version.outputs.semVer }}'
+              run : |
+                git config --global user.name '${{ github.actor }}'
+                git config --global user.email '${{ github.actor }}@users.noreply.github.com'
+                git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY                
+                git checkout "${GITHUB_REF:11}"                
+                git stage 'k8s/overlays/test/kustomization.yaml'
+                git commit -am "Updating test overlay file to ${{ steps.determine_version.outputs.semVer }}"
+                git push --set-upstream origin ${GITHUB_REF:11}                 
               if: github.ref == 'refs/heads/main'
