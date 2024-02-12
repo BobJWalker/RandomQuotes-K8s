@@ -68,7 +68,7 @@ jobs:
                 git stage 'k8s/overlays/dev/kustomization.yaml'
                 git commit -am "Automated report"
                 git tag 'dev-argo' --force
-                git push              
+                git push --set-upstream origin ${GITHUB_REF:11}             
               if: contains(github.ref, 'feature')
             - name: update test kustomize overlay             
               uses: mikefarah/yq@master              
