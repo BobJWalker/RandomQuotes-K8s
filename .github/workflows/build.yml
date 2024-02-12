@@ -60,11 +60,15 @@ jobs:
               if: contains(github.ref, 'feature')
             - id: commit_dev_kustomize_change
               name: commit the dev kustomize change
-              uses: EndBug/add-and-commit@v9
-              with:
-                add: 'k8s/overlays/dev/kustomization.yaml'
-                message: 'Updating dev overlay image tag to ${{ steps.determine_version.outputs.semVer }}'
-                tag: 'dev-argo --force'
+              run : |
+                git config --global user.name '${{ github.actor }}'
+                git config --global user.email '${{ github.actor }}@users.noreply.github.com'
+                git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY                
+                git checkout "${GITHUB_REF:11}"                
+                git stage 'k8s/overlays/dev/kustomization.yaml'
+                git commit -am "Automated report"
+                git tag 'dev-argo' --force
+                git push              
               if: contains(github.ref, 'feature')
             - name: update test kustomize overlay             
               uses: mikefarah/yq@master              
