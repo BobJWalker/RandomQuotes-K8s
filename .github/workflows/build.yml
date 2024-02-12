@@ -65,7 +65,6 @@ jobs:
                 add: 'k8s/overlays/dev/kustomization.yaml'
                 message: 'Updating dev overlay image tag to ${{ steps.determine_version.outputs.semVer }}'
                 tag: 'dev-argo --force'
-                new_branch: ${{ github.ref }}
               if: contains(github.ref, 'feature')
             - name: update test kustomize overlay             
               uses: mikefarah/yq@master              
