@@ -68,7 +68,7 @@ jobs:
                 git stage 'k8s/overlays/${{ github.ref == 'refs/heads/main' && 'test' || 'dev' }}/kustomization.yaml'
                 git commit -am "Updating ${{ github.ref == 'refs/heads/main' && 'test' || 'dev' }} overlay file to ${{ steps.determine_version.outputs.semVer }}"
                 git push --set-upstream origin ${GITHUB_REF:11} 
-                if "${{ github.ref }}" != "refs/head/main"
+                if [["${{ github.ref }}" != "refs/head/main"]]; then
                   git tag 'dev-argo' --force                
                   git push origin 'dev-argo' --force            
                 fi            
