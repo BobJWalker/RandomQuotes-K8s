@@ -54,7 +54,7 @@ jobs:
               working-directory: src
               run: | 
                   docker buildx build --push --platform linux/amd64,linux/arm64 -f "./RandomQuotes.Web/Dockerfile"  --build-arg APP_VERSION=${{ steps.determine_version.outputs.semVer }} --tag bobjwalker99/randomquotes-k8s:${{ steps.determine_version.outputs.semVer }} --tag bobjwalker99/randomquotes-k8s:latest .                 
-            - name: update dev kustomize overlay             
+            - name: update kustomize overlay             
               uses: mikefarah/yq@master              
               with:
                 cmd: yq -i '.images.[0].newTag = "${{ steps.determine_version.outputs.semVer }}"' 'k8s/overlays/${{ github.ref == 'refs/heads/main' && 'test' || 'dev' }}/kustomization.yaml'              
