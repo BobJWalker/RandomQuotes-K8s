@@ -54,37 +54,26 @@ jobs:
               working-directory: src
               run: | 
                   docker buildx build --push --platform linux/amd64,linux/arm64 -f "./RandomQuotes.Web/Dockerfile"  --build-arg APP_VERSION=${{ steps.determine_version.outputs.semVer }} --tag bobjwalker99/randomquotes-k8s:${{ steps.determine_version.outputs.semVer }} --tag bobjwalker99/randomquotes-k8s:latest .                 
-            - name: update dev kustomize overlay             
+            - name: update kustomize overlay             
               uses: mikefarah/yq@master              
               with:
-                cmd: yq -i '.images.[0].newTag = "${{ steps.determine_version.outputs.semVer }}"' 'k8s/overlays/dev/kustomization.yaml'
-              if: contains(github.ref, 'feature')
-            - id: commit_dev_kustomize_change
-              name: commit the dev kustomize change
+                cmd: yq -i '.images.[0].newTag = "${{ steps.determine_version.outputs.semVer }}"' 'k8s/overlays/${{ github.ref == 'refs/heads/main' && 'test' || 'dev' }}/kustomization.yaml'              
+            - id: commit_kustomize_change
+              name: commit kustomize change
               run : |
                 git config --global user.name '${{ github.actor }}'
                 git config --global user.email '${{ github.actor }}@users.noreply.github.com'
                 git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY                
                 git checkout "${GITHUB_REF:11}"                
-                git stage 'k8s/overlays/dev/kustomization.yaml'
-                git commit -am "Updating dev overlay file to ${{ steps.determine_version.outputs.semVer }}"
-                git tag 'dev-argo' --force
+                git stage 'k8s/overlays/${{ github.ref == 'refs/heads/main' && 'test' || 'dev' }}/kustomization.yaml'
+                git commit -am "Updating ${{ github.ref == 'refs/heads/main' && 'test' || 'dev' }} overlay file to ${{ steps.determine_version.outputs.semVer }}"
                 git push --set-upstream origin ${GITHUB_REF:11} 
-                git push origin 'dev-argo' --force            
-              if: contains(github.ref, 'feature')
-            - name: update test kustomize overlay             
-              uses: mikefarah/yq@master              
-              with:
-                cmd: yq -i '.images.[0].newTag = "${{ steps.determine_version.outputs.semVer }}"' 'k8s/overlays/test/kustomization.yaml'
-              if: github.ref == 'refs/heads/main'            
-            - id: commit_test_kustomize_change
-              name: commit the test kustomize change
-              run : |
-                git config --global user.name '${{ github.actor }}'
-                git config --global user.email '${{ github.actor }}@users.noreply.github.com'
-                git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY                
-                git checkout "${GITHUB_REF:11}"                
-                git stage 'k8s/overlays/test/kustomization.yaml'
-                git commit -am "Updating test overlay file to ${{ steps.determine_version.outputs.semVer }}"
-                git push --set-upstream origin ${GITHUB_REF:11}                 
-              if: github.ref == 'refs/heads/main'
+                
+                echo "The current branch is ${{ github.ref }}"
+                if [[ "${{ github.ref }}" != "refs/head/main" ]]; then
+                  echo "The current branch is not the main branch, updating the dev-argo tag"
+                  git tag 'dev-argo' --force                
+                  git push origin 'dev-argo' --force            
+                else
+                  echo "The curent branch is the main branch, leaving the dev-argo tag alone"
+                fi            
