@@ -70,7 +70,7 @@ jobs:
                 git push --set-upstream origin ${GITHUB_REF:11} 
                 
                 echo "The current branch is ${{ github.ref }}"
-                if [["${{ github.ref }}" != "refs/head/main"]]; then
+                if [[ "${{ github.ref }}" != "refs/head/main" ]]; then
                   echo "The current branch is not the main branch, updating the dev-argo tag"
                   git tag 'dev-argo' --force                
                   git push origin 'dev-argo' --force            
