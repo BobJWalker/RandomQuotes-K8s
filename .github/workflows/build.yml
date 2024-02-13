@@ -57,8 +57,7 @@ jobs:
             - name: update dev kustomize overlay             
               uses: mikefarah/yq@master              
               with:
-                cmd: yq -i '.images.[0].newTag = "${{ steps.determine_version.outputs.semVer }}"' 'k8s/overlays/dev/kustomization.yaml'
-              if: contains(github.ref, 'feature')
+                cmd: yq -i '.images.[0].newTag = "${{ steps.determine_version.outputs.semVer }}"' 'k8s/overlays/${{ github.ref == 'refs/heads/main' && 'dev' || 'test' }}/kustomization.yaml'              
             - id: commit_dev_kustomize_change
               name: commit the dev kustomize change
               run : |
@@ -71,12 +70,7 @@ jobs:
                 git tag 'dev-argo' --force
                 git push --set-upstream origin ${GITHUB_REF:11} 
                 git push origin 'dev-argo' --force            
-              if: contains(github.ref, 'feature')
-            - name: update test kustomize overlay             
-              uses: mikefarah/yq@master              
-              with:
-                cmd: yq -i '.images.[0].newTag = "${{ steps.determine_version.outputs.semVer }}"' 'k8s/overlays/test/kustomization.yaml'
-              if: github.ref == 'refs/heads/main'            
+              if: contains(github.ref, 'feature')            
             - id: commit_test_kustomize_change
               name: commit the test kustomize change
               run : |
