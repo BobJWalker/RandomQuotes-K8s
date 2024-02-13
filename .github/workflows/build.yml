@@ -68,7 +68,12 @@ jobs:
                 git stage 'k8s/overlays/${{ github.ref == 'refs/heads/main' && 'test' || 'dev' }}/kustomization.yaml'
                 git commit -am "Updating ${{ github.ref == 'refs/heads/main' && 'test' || 'dev' }} overlay file to ${{ steps.determine_version.outputs.semVer }}"
                 git push --set-upstream origin ${GITHUB_REF:11} 
+                
+                echo "The current branch is ${{ github.ref }}"
                 if [["${{ github.ref }}" != "refs/head/main"]]; then
+                  echo "The current branch is not the main branch, updating the dev-argo tag"
                   git tag 'dev-argo' --force                
                   git push origin 'dev-argo' --force            
+                else
+                  echo "The curent branch is the main branch, leaving the dev-argo tag alone"
                 fi            
