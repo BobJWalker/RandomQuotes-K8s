@@ -3,10 +3,7 @@ kind: Kustomization
 namespace: test
 resources:
   - ../../base
-secretGenerator:
-  - name: random-quotes-secrets
-    literals:
-      - homepageDisplay="dev kustomize overlay"
+
 images:
   - name: bobjwalker99/randomquotes-k8s
     newName: bobjwalker99/randomquotes-k8s

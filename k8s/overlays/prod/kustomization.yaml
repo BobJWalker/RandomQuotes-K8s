@@ -3,12 +3,6 @@ kind: Kustomization
 namespace: production
 resources:
 - ../../base
-
-secretGenerator:
-  - name: random-quotes-secrets
-    literals:
-      - homepageDisplay="prod kustomize overlay"
-
 images:
  - name: bobjwalker99/randomquotes-k8s
    newName: bobjwalker99/randomquotes-k8s
