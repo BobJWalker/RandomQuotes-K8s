@@ -15,16 +15,9 @@ spec:
       containers:
         - name: randomquotes-web
           image: bobjwalker99/randomquotes-k8s:0.1.60
-          resources:
-            requests:
-              memory: "64Mi"
-              cpu: "50m"
-            limits:
-              memory: "128Mi"
-              cpu: "150m"
           imagePullPolicy: "Always"
           ports:
-           - containerPort: 5000
+           - containerPort: 8080
              name: http-port
           env:
            - name: RANDOM_SECRET_PHRASE
