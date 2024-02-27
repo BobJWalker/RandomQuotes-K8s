@@ -6,7 +6,7 @@ resources:
 images:
   - name: bobjwalker99/randomquotes-k8s
     newName: bobjwalker99/randomquotes-k8s
-    newTag: "0.1.70-demo.1"
+    newTag: "#{Project.Container.RandomQuotesVersion}"
 patches:
   - target:
       kind: Ingress

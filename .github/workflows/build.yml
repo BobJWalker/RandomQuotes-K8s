@@ -9,6 +9,13 @@ on:
           - 'src/**'
           - '.github/workflows/build.yml'
     workflow_dispatch:
+env:  
+  OCTOPUS_PROJECT_NAME: "Random Quotes"
+  OCTOPUS_FEATURE_BRANCH_CHANNEL: Default  
+  OCTOPUS_RELEASE_CHANNEL: Release   
+  OCTOPUS_SPACE: Default
+  OCTOPUS_API_KEY: ${{ secrets.OCTOPUSSERVERAPIKEY }}  
+  OCTOPUS_URL: http://bobjwalker.octopus.app
 
 jobs:
     build-and-push-application:
@@ -28,18 +35,20 @@ jobs:
               uses: gittools/actions/gitversion/setup@v0.9.14
               with:
                   versionSpec: 5.x
+            
             - id: determine_version
               name: Determine Version
               uses: gittools/actions/gitversion/execute@v0.9.14
               with:
                   additionalArguments: /overrideconfig mode=Mainline
-            - name: update tag with latest version
+            - name: update tag
               uses: richardsimko/update-tag@v1
               with:
-                tag_name: ${{ steps.determine_version.outputs.semVer }}
+                tag_name: ${{ env.GitVersion_MajorMinorPatch }}.${{ env.GitVersion_PreReleaseNumber || env.GitVersion_PreReleaseTag || github.run_number }}${{ env.GitVersion_PreReleaseLabelWithDash }}
               env: 
                 GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               if: github.ref == 'refs/heads/main'
+
             - name: Login to Docker Hub
               uses: docker/login-action@v2
               with:
@@ -53,4 +62,18 @@ jobs:
             - name: build and push website container
               working-directory: src
               run: | 
-                  docker buildx build --push --platform linux/amd64,linux/arm64 -f "./RandomQuotes.Web/Dockerfile"  --build-arg APP_VERSION=${{ steps.determine_version.outputs.semVer }} --tag bobjwalker99/randomquotes-k8s:${{ steps.determine_version.outputs.semVer }} --tag bobjwalker99/randomquotes-k8s:latest .                             
+                  docker buildx build --push --platform linux/amd64,linux/arm64 -f "./RandomQuotes.Web/Dockerfile"  --build-arg APP_VERSION=${{ env.GitVersion_MajorMinorPatch }}.${{ env.GitVersion_PreReleaseNumber || env.GitVersion_PreReleaseTag || github.run_number }} --tag bobjwalker99/randomquotes-k8s:${{ env.GitVersion_MajorMinorPatch }}.${{ env.GitVersion_PreReleaseNumber || env.GitVersion_PreReleaseTag || github.run_number }} --tag bobjwalker99/randomquotes-k8s:latest .                             
+        
+            - name: push build information to Octopus
+              uses: OctopusDeploy/push-build-information-action@v3
+              with:
+                packages: |            
+                  RandomQuotes-K8s
+                version: "${{ env.GitVersion_MajorMinorPatch }}.${{ env.GitVersion_PreReleaseNumber || env.GitVersion_PreReleaseTag || github.run_number }}"            
+            - name: create release
+              uses: OctopusDeploy/create-release-action@v3
+              with:
+                project: ${{ env.OCTOPUS_PROJECT_NAME }}
+                channel: ${{ github.ref == 'refs/heads/main' && env.OCTOPUS_RELEASE_CHANNEL || env.OCTOPUS_FEATURE_BRANCH_CHANNEL }}
+                release_number: "${{ env.GitVersion_MajorMinorPatch }}.${{ env.GitVersion_PreReleaseNumber || env.GitVersion_PreReleaseTag || github.run_number }}${{ env.GitVersion_PreReleaseLabelWithDash }}"
+                package_version: "${{ env.GitVersion_MajorMinorPatch }}.${{ env.GitVersion_PreReleaseNumber || env.GitVersion_PreReleaseTag || github.run_number }}${{ env.GitVersion_PreReleaseLabelWithDash }}"
