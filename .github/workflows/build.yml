@@ -9,14 +9,6 @@ on:
           - 'src/**'
           - '.github/workflows/build.yml'
     workflow_dispatch:
-env:  
-  OCTOPUS_PROJECT_NAME: "Random Quotes"
-  OCTOPUS_FEATURE_BRANCH_CHANNEL: Default  
-  OCTOPUS_RELEASE_CHANNEL: Release   
-  OCTOPUS_SPACE: Default
-  OCTOPUS_API_KEY: ${{ secrets.OCTOPUSSERVERAPIKEY }}  
-  OCTOPUS_URL: http://bobjwalker.octopus.app
-
 jobs:
     build-and-push-application:
         runs-on: ubuntu-latest        
@@ -62,18 +54,27 @@ jobs:
             - name: build and push website container
               working-directory: src
               run: | 
-                  docker buildx build --push --platform linux/amd64,linux/arm64 -f "./RandomQuotes.Web/Dockerfile"  --build-arg APP_VERSION=${{ env.GitVersion_MajorMinorPatch }}.${{ env.GitVersion_PreReleaseNumber || env.GitVersion_PreReleaseTag || github.run_number }} --tag bobjwalker99/randomquotes-k8s:${{ env.GitVersion_MajorMinorPatch }}.${{ env.GitVersion_PreReleaseNumber || env.GitVersion_PreReleaseTag || github.run_number }} --tag bobjwalker99/randomquotes-k8s:latest .                             
-        
-            - name: push build information to Octopus
-              uses: OctopusDeploy/push-build-information-action@v3
+                  docker buildx build --push --platform linux/amd64,linux/arm64 -f "./RandomQuotes.Web/Dockerfile"  --build-arg APP_VERSION=${{ env.GitVersion_MajorMinorPatch }}.${{ env.GitVersion_PreReleaseNumber || env.GitVersion_PreReleaseTag || github.run_number }} --tag bobjwalker99/randomquotes-k8s:${{ env.GitVersion_MajorMinorPatch }}.${{ env.GitVersion_PreReleaseNumber || env.GitVersion_PreReleaseTag || github.run_number }} --tag bobjwalker99/randomquotes-k8s:latest .            
+            - name: update kustomize overlay             
+              uses: mikefarah/yq@master              
               with:
-                packages: |            
-                  RandomQuotes-K8s
-                version: "${{ env.GitVersion_MajorMinorPatch }}.${{ env.GitVersion_PreReleaseNumber || env.GitVersion_PreReleaseTag || github.run_number }}"            
-            - name: create release
-              uses: OctopusDeploy/create-release-action@v3
-              with:
-                project: ${{ env.OCTOPUS_PROJECT_NAME }}
-                channel: ${{ github.ref == 'refs/heads/main' && env.OCTOPUS_RELEASE_CHANNEL || env.OCTOPUS_FEATURE_BRANCH_CHANNEL }}
-                release_number: "${{ env.GitVersion_MajorMinorPatch }}.${{ env.GitVersion_PreReleaseNumber || env.GitVersion_PreReleaseTag || github.run_number }}${{ env.GitVersion_PreReleaseLabelWithDash }}"
-                package_version: "${{ env.GitVersion_MajorMinorPatch }}.${{ env.GitVersion_PreReleaseNumber || env.GitVersion_PreReleaseTag || github.run_number }}${{ env.GitVersion_PreReleaseLabelWithDash }}"
+                cmd: yq -i '.images.[0].newTag = "${{ steps.determine_version.outputs.semVer }}"' 'k8s/overlays/${{ github.ref == 'refs/heads/main' && 'test' || 'dev' }}/kustomization.yaml'              
+            - id: commit_kustomize_change
+              name: commit kustomize change
+              run : |
+                git config --global user.name '${{ github.actor }}'
+                git config --global user.email '${{ github.actor }}@users.noreply.github.com'
+                git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY                
+                git checkout "${GITHUB_REF:11}"                
+                git stage 'k8s/overlays/${{ github.ref == 'refs/heads/main' && 'test' || 'dev' }}/kustomization.yaml'
+                git commit -am "Updating ${{ github.ref == 'refs/heads/main' && 'test' || 'dev' }} overlay file to ${{ steps.determine_version.outputs.semVer }}"
+                git push --set-upstream origin ${GITHUB_REF:11} 
+                
+                echo "The current branch is ${{ github.ref }}"
+                if [[ "${{ github.ref }}" != "refs/head/main" ]]; then
+                  echo "The current branch is not the main branch, updating the dev-argo tag"
+                  git tag 'dev-argo' --force                
+                  git push origin 'dev-argo' --force            
+                else
+                  echo "The curent branch is the main branch, leaving the dev-argo tag alone"
+                fi            
