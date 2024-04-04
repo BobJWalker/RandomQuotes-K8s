@@ -58,7 +58,7 @@ jobs:
             - name: update kustomize overlay             
               uses: mikefarah/yq@master              
               with:
-                cmd: yq -i '.images.[0].newTag = "${{ steps.determine_version.outputs.semVer }}"' 'k8s/overlays/${{ github.ref == 'refs/heads/main' && 'test' || 'dev' }}/kustomization.yaml'              
+                cmd: yq -i '.images.[0].newTag = "${{ env.GitVersion_MajorMinorPatch }}.${{ env.GitVersion_PreReleaseNumber || env.GitVersion_PreReleaseTag || github.run_number }}"' 'k8s/overlays/${{ github.ref == 'refs/heads/main' && 'test' || 'dev' }}/kustomization.yaml'              
             - id: commit_kustomize_change
               name: commit kustomize change
               run : |
@@ -67,7 +67,7 @@ jobs:
                 git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY                
                 git checkout "${GITHUB_REF:11}"                
                 git stage 'k8s/overlays/${{ github.ref == 'refs/heads/main' && 'test' || 'dev' }}/kustomization.yaml'
-                git commit -am "Updating ${{ github.ref == 'refs/heads/main' && 'test' || 'dev' }} overlay file to ${{ steps.determine_version.outputs.semVer }}"
+                git commit -am "Updating ${{ github.ref == 'refs/heads/main' && 'test' || 'dev' }} overlay file to ${{ env.GitVersion_MajorMinorPatch }}.${{ env.GitVersion_PreReleaseNumber || env.GitVersion_PreReleaseTag || github.run_number }}"
                 git push --set-upstream origin ${GITHUB_REF:11} 
                 
                 echo "The current branch is ${{ github.ref }}"
