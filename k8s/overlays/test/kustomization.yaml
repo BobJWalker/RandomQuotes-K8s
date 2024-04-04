@@ -3,11 +3,10 @@ kind: Kustomization
 namespace: test-randomquotes
 resources:
   - ../../base
-
 images:
   - name: bobjwalker99/randomquotes-k8s
     newName: bobjwalker99/randomquotes-k8s
-    newTag: "0.1.79.1"
+    newTag: "0.1.80"
 patches:
   - target:
       kind: Ingress
