@@ -6,7 +6,7 @@ resources:
 images:
   - name: bobjwalker99/randomquotes-k8s
     newName: bobjwalker99/randomquotes-k8s
-    newTag: "0.1.80"
+    newTag: "0.1.83.4"
 patches:
   - target:
       kind: Ingress
