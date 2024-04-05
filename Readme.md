@@ -100,7 +100,7 @@ We are going to deploy to all four namespaces.  The instructions are the same, s
 - Once the deployment is over go to http://randomquotes[environment name].local
 - Assuming everything is working, repeat the following steps for each environment.
 
-## 3. Fourth Activity - ArgoCD
+## 3. Third Activity - ArgoCD
 
 This activity will happen only if we have enough time.  We will install and configure ArgoCD so we can compare and contrast the two.
 
