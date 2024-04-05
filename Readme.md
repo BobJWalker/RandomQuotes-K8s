@@ -1,10 +1,10 @@
 This is a sample application deploy to Kubernetes.  It's a good first application as it has no other components, but has an environment variable you can use to practice secrets on.
 
-The docker image is built using a GitHub action and it is pushed to Docker Hub.  You can find the docker repository here: https://hub.docker.com/r/octopussamples/randomquotes-k8s/tags
+The docker image is built using a GitHub action and it is pushed to Docker Hub.  You can find the docker repository here: https://hub.docker.com/r/bobjwalker99/randomquotes-k8s/tags
 
 # Configuration
 
-The docker image, manifest files, and variables will be provided to you.  You need to provide a k8s cluster, octopus instance, and worker.
+The docker image, manifest files, and variables will be provided to you.
 
 ## 1. Install K8s
 Install ONE of the following on a VM or locally!
@@ -70,7 +70,7 @@ These instructions will deploy the following to the default namespace.
 - Ingress Rule
 
 To perform the deployment do the following:
-- Go to https://hub.docker.com/r/octopussamples/randomquotes-k8s/tags and find the latest version tag (0.1.3 for example).  Update the `image` entry in the randomquotes-deployment.yaml file.
+- Go to https://hub.docker.com/r/bobjwalker99/randomquotes-k8s/tags and find the latest version tag (0.1.3 for example).  Update the `image` entry in the randomquotes-deployment.yaml file.
 - Open up a command prompt or terminal.  Change the current directory in the terminal to the `k8s/base` folder in this repo. 
 - Run `kubectl apply -f randomquotes-secrets.yaml`
 - Run `kubectl apply -f randomquotes-deployment.yaml`
