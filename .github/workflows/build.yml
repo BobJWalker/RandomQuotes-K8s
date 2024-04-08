@@ -67,7 +67,7 @@ jobs:
                 git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY                
                 git checkout "${GITHUB_REF:11}"                
                 git stage 'k8s/overlays/${{ github.ref == 'refs/heads/main' && 'test' || 'dev' }}/kustomization.yaml'
-                git commit -am "Updating ${{ github.ref == 'refs/heads/main' && 'test' || 'dev' }} overlay file to ${{ env.GitVersion_MajorMinorPatch }}.${{ env.GitVersion_PreReleaseNumber || env.GitVersion_PreReleaseTag || github.run_number }}"
+                git commit -am "[promotion:demo] Updating ${{ github.ref == 'refs/heads/main' && 'test' || 'dev' }} to ${{ env.GitVersion_MajorMinorPatch }}.${{ env.GitVersion_PreReleaseNumber || env.GitVersion_PreReleaseTag || github.run_number }}"
                 git push --set-upstream origin ${GITHUB_REF:11} 
                 
                 echo "The current branch is ${{ github.ref }}"
