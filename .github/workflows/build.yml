@@ -36,7 +36,7 @@ jobs:
             - name: update tag
               uses: richardsimko/update-tag@v1
               with:
-                tag_name: ${{ env.GitVersion_MajorMinorPatch }}.${{ env.GitVersion_PreReleaseNumber || env.GitVersion_PreReleaseTag || github.run_number }}${{ env.GitVersion_PreReleaseLabelWithDash }}
+                tag_name: ${{ env.GitVersion_SemVer }}
               env: 
                 GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               if: github.ref == 'refs/heads/main'
@@ -54,11 +54,11 @@ jobs:
             - name: build and push website container
               working-directory: src
               run: | 
-                  docker buildx build --push --platform linux/amd64,linux/arm64 -f "./RandomQuotes.Web/Dockerfile"  --build-arg APP_VERSION=${{ env.GitVersion_MajorMinorPatch }}.${{ env.GitVersion_PreReleaseNumber || env.GitVersion_PreReleaseTag || github.run_number }} --tag bobjwalker99/randomquotes-k8s:${{ env.GitVersion_MajorMinorPatch }}.${{ env.GitVersion_PreReleaseNumber || env.GitVersion_PreReleaseTag || github.run_number }} --tag bobjwalker99/randomquotes-k8s:latest .            
+                  docker buildx build --push --platform linux/amd64,linux/arm64 -f "./RandomQuotes.Web/Dockerfile"  --build-arg APP_VERSION=${{ env.GitVersion_SemVer }} --tag bobjwalker99/randomquotes-k8s:${{ env.GitVersion_SemVer }} --tag bobjwalker99/randomquotes-k8s:latest .            
             - name: update kustomize overlay             
               uses: mikefarah/yq@master              
               with:
-                cmd: yq -i '.images.[0].newTag = "${{ env.GitVersion_MajorMinorPatch }}.${{ env.GitVersion_PreReleaseNumber || env.GitVersion_PreReleaseTag || github.run_number }}"' 'k8s/overlays/${{ github.ref == 'refs/heads/main' && 'test' || 'dev' }}/kustomization.yaml'              
+                cmd: yq -i '.images.[0].newTag = "${{ env.GitVersion_SemVer }}"' 'k8s/overlays/${{ github.ref == 'refs/heads/main' && 'test' || 'dev' }}/kustomization.yaml'              
             - id: commit_kustomize_change
               name: commit kustomize change
               run : |
@@ -67,7 +67,7 @@ jobs:
                 git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY                
                 git checkout "${GITHUB_REF:11}"                
                 git stage 'k8s/overlays/${{ github.ref == 'refs/heads/main' && 'test' || 'dev' }}/kustomization.yaml'
-                git commit -am "[promotion:demo] Updating ${{ github.ref == 'refs/heads/main' && 'test' || 'dev' }} to ${{ env.GitVersion_MajorMinorPatch }}.${{ env.GitVersion_PreReleaseNumber || env.GitVersion_PreReleaseTag || github.run_number }}"
+                git commit -am "[promotion:demo] Updating ${{ github.ref == 'refs/heads/main' && 'test' || 'dev' }} to ${{ env.GitVersion_SemVer }}"
                 git push --set-upstream origin ${GITHUB_REF:11} 
                 
                 echo "The current branch is ${{ github.ref }}"

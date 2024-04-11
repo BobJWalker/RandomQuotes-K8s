@@ -1,0 +1,4 @@
+randomquotes:
+  homepageDisplaySecret: "blah"
+  image:
+    tag: "0.1.88"
