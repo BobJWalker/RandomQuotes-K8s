@@ -1,0 +1,29 @@
+variable "Project.Container.RandomQuotesVersion" {
+    value "#{Octopus.Action.Package[randomquotes-k8s].PackageVersion}" {}
+}
+
+variable "Project.ExecutionContainer.K8s" {
+    value "octopuslabs/k8s-workertools:1.28" {}
+}
+
+variable "Project.K8s.Namespace" {
+    value "#{Octopus.Environment.Name | ToLower }" {}
+}
+
+variable "Project.Overlay.Environment" {
+    value "dev" {
+        environment = ["development"]
+    }
+
+    value "test" {
+        environment = ["test"]
+    }
+
+    value "staging" {
+        environment = ["staging"]
+    }
+
+    value "prod" {
+        environment = ["production"]
+    }
+}

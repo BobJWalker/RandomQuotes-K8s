@@ -1,0 +1,92 @@
+step "create-connectionstring-secret" {
+    name = "Create Secrets"
+    properties = {
+        Octopus.Action.TargetRoles = "randomquotes-web"
+    }
+
+    action {
+        action_type = "Octopus.KubernetesDeployRawYaml"
+        notes = <<-EOT
+                **Always Runs**
+                
+                Ensures the secrets has been properly created.
+                EOT
+        properties = {
+            Octopus.Action.Kubernetes.DeploymentTimeout = "180"
+            Octopus.Action.Kubernetes.ResourceStatusCheck = "True"
+            Octopus.Action.Kubernetes.ServerSideApply.Enabled = "False"
+            Octopus.Action.Kubernetes.ServerSideApply.ForceConflicts = "False"
+            Octopus.Action.KubernetesContainers.CustomResourceYamlFileName = "k8s/base/randomquotes-secrets.yaml"
+            Octopus.Action.KubernetesContainers.Namespace = "#{Project.K8s.Namespace}"
+            Octopus.Action.Package.JsonConfigurationVariablesTargets = "**/*.{yml,yaml}"
+            Octopus.Action.Script.ScriptSource = "GitRepository"
+            OctopusUseBundledTooling = "False"
+        }
+        worker_pool = "hosted-ubuntu"
+
+        container {
+            feed = "dockerhub"
+            image = "#{Project.ExecutionContainer.K8s}"
+        }
+
+        git_dependencies {
+            default_branch = "main"
+            file_path_filters = ["k8s/base/randomquotes-secrets.yaml"]
+            git_credential_id = "GitCredentials-21"
+            git_credential_type = "Library"
+            repository_uri = "https://github.com/BobJWalker/RandomQuotes-K8s.git"
+        }
+    }
+}
+
+step "deploy-web-app" {
+    name = "Deploy Web App"
+    properties = {
+        Octopus.Action.TargetRoles = "randomquotes-web"
+    }
+
+    action {
+        action_type = "Octopus.Kubernetes.Kustomize"
+        is_required = true
+        notes = <<-EOT
+                **Always Runs**
+                
+                Step that always deploys to AKS using Kustomize.
+                EOT
+        properties = {
+            Octopus.Action.AutoRetry.MaximumCount = "3"
+            Octopus.Action.Kubernetes.DeploymentTimeout = "180"
+            Octopus.Action.Kubernetes.Kustomize.OverlayPath = "k8s/overlays/#{Project.Overlay.Environment}"
+            Octopus.Action.Kubernetes.ResourceStatusCheck = "True"
+            Octopus.Action.Kubernetes.ServerSideApply.Enabled = "False"
+            Octopus.Action.Kubernetes.ServerSideApply.ForceConflicts = "False"
+            Octopus.Action.Script.ScriptSource = "GitRepository"
+            Octopus.Action.SubstituteInFiles.TargetFiles = "k8s/overlays/#{Project.Overlay.Environment}/kustomization.yaml"
+            OctopusUseBundledTooling = "False"
+        }
+        worker_pool = "hosted-ubuntu"
+
+        container {
+            feed = "dockerhub"
+            image = "#{Project.ExecutionContainer.K8s}"
+        }
+
+        git_dependencies {
+            default_branch = "main"
+            git_credential_id = "GitCredentials-21"
+            git_credential_type = "Library"
+            repository_uri = "https://github.com/BobJWalker/RandomQuotes-K8s.git"
+        }
+
+        packages "randomquotes-k8s" {
+            acquisition_location = "NotAcquired"
+            feed = "dockerhub"
+            package_id = "bobjwalker99/randomquotes-k8s"
+            properties = {
+                Extract = "False"
+                Purpose = ""
+                SelectionMode = "immediate"
+            }
+        }
+    }
+}
