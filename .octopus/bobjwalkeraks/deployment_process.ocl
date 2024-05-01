@@ -12,6 +12,8 @@ step "create-connectionstring-secret" {
                 Ensures the secrets has been properly created.
                 EOT
         properties = {
+            Octopus.Action.GitRepository.FilePathFilters = "k8s/base/randomquotes-secrets.yaml"
+            Octopus.Action.GitRepository.Source = "Project"
             Octopus.Action.Kubernetes.DeploymentTimeout = "180"
             Octopus.Action.Kubernetes.ResourceStatusCheck = "True"
             Octopus.Action.Kubernetes.ServerSideApply.Enabled = "False"
@@ -27,14 +29,6 @@ step "create-connectionstring-secret" {
         container {
             feed = "dockerhub"
             image = "#{Project.ExecutionContainer.K8s}"
-        }
-
-        git_dependencies {
-            default_branch = "main"
-            file_path_filters = ["k8s/base/randomquotes-secrets.yaml"]
-            git_credential_id = "GitCredentials-21"
-            git_credential_type = "Library"
-            repository_uri = "https://github.com/BobJWalker/RandomQuotes-K8s.git"
         }
     }
 }
@@ -55,6 +49,7 @@ step "deploy-web-app" {
                 EOT
         properties = {
             Octopus.Action.AutoRetry.MaximumCount = "3"
+            Octopus.Action.GitRepository.Source = "Project"
             Octopus.Action.Kubernetes.DeploymentTimeout = "180"
             Octopus.Action.Kubernetes.Kustomize.OverlayPath = "k8s/overlays/#{Project.Overlay.Environment}"
             Octopus.Action.Kubernetes.ResourceStatusCheck = "True"
@@ -69,13 +64,6 @@ step "deploy-web-app" {
         container {
             feed = "dockerhub"
             image = "#{Project.ExecutionContainer.K8s}"
-        }
-
-        git_dependencies {
-            default_branch = "main"
-            git_credential_id = "GitCredentials-21"
-            git_credential_type = "Library"
-            repository_uri = "https://github.com/BobJWalker/RandomQuotes-K8s.git"
         }
 
         packages "randomquotes-k8s" {
