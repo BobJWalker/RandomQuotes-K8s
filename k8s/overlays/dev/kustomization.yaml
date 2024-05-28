@@ -9,6 +9,6 @@ images:
     newTag: "0.1.88.1"
 patches:
   - target:
-      kind: Ingress
-      name: randomquotes-ingress-nginx
+      kind: HTTPRoute
+      name: randomquotes-gateway-route-nginx
     path: randomquotes-ingress-nginx.yaml

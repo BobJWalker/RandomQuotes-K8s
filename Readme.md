@@ -21,7 +21,8 @@ Install ONE of the following on a VM or locally!
 Open up a command prompt or terminal.  Change the current directory in the terminal to the `k8s/provision` folder in this repo.
 - Run the following commands:
     - Create all the namespaces: `kubectl apply -f namespaces.yaml`
-    - Install the NGINX Ingress Controller: `kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.9.5/deploy/static/provider/cloud/deploy.yaml`
+    - Install the NGINX Gateway Resources: `kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.0.0/standard-install.yaml`
+    - Install the NGINX Gateway: `helm install ngf oci://ghcr.io/nginxinc/charts/nginx-gateway-fabric --create-namespace -n nginx-gateway`
 
 ## 3. Configure your hosts file.
 Go to your hosts file (if on Windows) and add the following entries.  The nginx ingress controller uses host headers for all routing.  Doing this will allow you to easily access the application running on your k8s cluster.
