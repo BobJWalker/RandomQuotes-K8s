@@ -1,6 +1,28 @@
-This is a sample application deploy to Kubernetes.  It's a good first application as it has no other components, but has an environment variable you can use to practice secrets on.
+This is a sample application deploy to Kubernetes.  It's a good first application as it has no other components, but it is simple and can be easily modified.
 
-The docker image is built using a GitHub action and it is pushed to Docker Hub.  You can find the docker repository here: https://hub.docker.com/r/bobjwalker99/randomquotes-k8s/tags
+Configuring Kubernetes to host this particular container will teach you the following:
+
+- [Pods](https://kubernetes.io/docs/concepts/workloads/pods/)
+- [ReplicaSets](https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/)
+- [Kubernetes Deployment Object](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/)
+- [Environment Variables](https://kubernetes.io/docs/tasks/inject-data-application/define-environment-variable-container/)
+- [Secrets](https://kubernetes.io/docs/concepts/configuration/secret/)
+- [Namespaces](https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/)
+- [Gateway](https://gateway-api.sigs.k8s.io/)
+- [Gateway Listener](https://gateway-api.sigs.k8s.io/guides/tls/?h=listener#downstream-tls)
+- [HTTPRoute](https://gateway-api.sigs.k8s.io/api-types/httproute/)
+
+# GitHub Action and Docker Repository
+
+The Docker Container is built using a GitHub action and it is pushed to Docker Hub.  Both a Linux/x86 and Linux/arm64 image are built.  
+
+You can find the docker repository here: https://hub.docker.com/r/bobjwalker99/randomquotes-k8s/tags.
+
+If you fork this repo you will need to set the following repo secrets:
+
+- `DOCKERHUB_PAT_USERNAME` - your username
+- `DOCKERHUB_PAT` - the PAT of your user
+- `DOCKERHUB_REPO` - the docker hub repo to store the container
 
 # Configuration
 
@@ -33,6 +55,7 @@ Go to your hosts file (if on Windows) and add the following entries.  The nginx 
 127.0.0.1       randomquotestest.local
 127.0.0.1       randomquotesstaging.local
 127.0.0.1       randomquotesprod.local
+127.0.0.1       argocd.local
 ```
 
 ## 3. Install Argo
@@ -42,12 +65,11 @@ This will install ArgoCD on your cluster.  Perfect for poking around!
 - Install ArgoCD
     - Run `kubectl create namespace argocd`
     - Run `kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml`
+    - Change the current directory in the terminal to the `k8s/provision` folder in this repo.
+    - Run `kubectl apply -n argocd -f argocd-gateway.yaml`
 - To access ArgoCD UI
-    - Run `kubectl port-forward svc/argocd-server -n argocd 8080:443`
-        - **Important** The port forwarding will only work while that window is open.
-        - If you want to, you can mess with ingress rules, but this is the quick and dirty approach to getting going.
     - To login
-        - URL is https://localhost:8080
+        - URL is https://argocd.local
         - You will likely get a cert error, go ahead and proceed
         - Username is admin
         - Run `kubectl get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' --namespace argocd` to get the password.  
@@ -68,12 +90,12 @@ These instructions will deploy the following to the default namespace.
 - Secret
 - Deployment (Image)
 - ClusterIp Service
-- Ingress Rule
+- Gateway Listener
+- HTTP Route
 
 To perform the deployment do the following:
 - Go to https://hub.docker.com/r/bobjwalker99/randomquotes-k8s/tags and find the latest version tag (0.1.3 for example).  Update the `image` entry in the randomquotes-deployment.yaml file.
 - Open up a command prompt or terminal.  Change the current directory in the terminal to the `k8s/base` folder in this repo. 
-- Run `kubectl apply -f randomquotes-secrets.yaml`
 - Run `kubectl apply -f randomquotes-deployment.yaml`
 
 It might take a moment for the deployment to finish.  I like to check the status of the pods.  Run `kubectl get pods` until the randomquotes pod shows up as healthy.
@@ -88,7 +110,7 @@ In the previous activity we deployed to the default namespace.  In the real-worl
 
 - The image version
 - The secret value
-- The ingress rule
+- The http route
 
 If we were using ArgoCD or some other similar tool we could use these kustomize overlays with no additional configuration changes.  
 

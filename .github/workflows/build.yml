@@ -51,10 +51,10 @@ jobs:
               uses: crazy-max/ghaction-docker-buildx@v1
               with:
                 version: latest
-            - name: build and push website container
-              working-directory: src
+            - name: build and push website container              
+              working-directory: src              
               run: | 
-                  docker buildx build --push --platform linux/amd64,linux/arm64 -f "./RandomQuotes.Web/Dockerfile"  --build-arg APP_VERSION=${{ env.GitVersion_SemVer }} --tag bobjwalker99/randomquotes-k8s:${{ env.GitVersion_SemVer }} --tag bobjwalker99/randomquotes-k8s:latest .            
+                  docker buildx build --push --platform linux/amd64,linux/arm64 -f "./RandomQuotes.Web/Dockerfile"  --build-arg APP_VERSION=${{ env.GitVersion_SemVer }} --tag ${{ secrets.DOCKERHUB_REPO }}:${{ env.GitVersion_SemVer }} --tag ${{ secrets.DOCKERHUB_REPO }}:latest .            
             - name: update kustomize overlay             
               uses: mikefarah/yq@master              
               with:
