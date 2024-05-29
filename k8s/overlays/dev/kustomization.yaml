@@ -6,9 +6,9 @@ resources:
 images:
   - name: bobjwalker99/randomquotes-k8s
     newName: bobjwalker99/randomquotes-k8s
-    newTag: "0.1.88.1"
+    newTag: "0.1.90-helm.5"
 patches:
   - target:
-      kind: Ingress
-      name: randomquotes-ingress-nginx
+      kind: HTTPRoute
+      name: randomquotes-gateway-route-nginx
     path: randomquotes-ingress-nginx.yaml
