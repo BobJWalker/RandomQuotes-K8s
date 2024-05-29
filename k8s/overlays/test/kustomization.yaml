@@ -6,7 +6,7 @@ resources:
 images:
   - name: bobjwalker99/randomquotes-k8s
     newName: bobjwalker99/randomquotes-k8s
-    newTag: "0.1.88.7"
+    newTag: "0.1.92"
 patches:
   - target:
       kind: HTTPRoute
