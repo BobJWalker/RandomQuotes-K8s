@@ -1,29 +1,30 @@
 ---
-apiVersion: gateway.networking.k8s.io/v1
-kind: Gateway
+apiVersion: v1
+kind: Service
 metadata:
-  name: argocd-gateway-nginx  
+  name: argocd-cluster-ip-service  
 spec:
-  gatewayClassName: nginx
-  listeners:
-  - name: https
-    port: 443
-    protocol: HTTPS
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: argocd-server
+  ports:
+    - port: 6801
+      targetPort: 8080
 ---
-apiVersion: gateway.networking.k8s.io/v1
-kind: HTTPRoute
+apiVersion: networking.k8s.io/v1
+kind: Ingress
 metadata:
-  name: argo-gateway-route-nginx
+  name: argo-ingress-nginx
 spec:
-  parentRefs:
-  - name: argo-gateway-nginx
-  hostnames:
-  - "argocd.local"  
+  ingressClassName: nginx
   rules:
-    - matches:
-      - path:
-          type: PathPrefix
-          value: /
-      backendRefs:
-      - name: svc/argocd-server
-        port: 443
+  - host: argocd.local
+    http:
+      paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: argocd-cluster-ip-service
+              port:
+                number: 6801

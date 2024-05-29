@@ -8,9 +8,8 @@ Configuring Kubernetes to host this particular container will teach you the foll
 - [Environment Variables](https://kubernetes.io/docs/tasks/inject-data-application/define-environment-variable-container/)
 - [Secrets](https://kubernetes.io/docs/concepts/configuration/secret/)
 - [Namespaces](https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/)
-- [Gateway](https://gateway-api.sigs.k8s.io/)
-- [Gateway Listener](https://gateway-api.sigs.k8s.io/guides/tls/?h=listener#downstream-tls)
-- [HTTPRoute](https://gateway-api.sigs.k8s.io/api-types/httproute/)
+- [Ingress Controllers](https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/)
+- [Ingress](https://kubernetes.io/docs/concepts/services-networking/ingress/)
 
 # GitHub Action and Docker Repository
 
@@ -29,7 +28,7 @@ If you fork this repo you will need to set the following repo secrets:
 The docker image, manifest files, and variables will be provided to you.
 
 ## 1. Install K8s
-Install ONE of the following on a VM or locally!
+Install **_ONE_** of the following on a VM or locally!
 
 - [docker desktop](https://docs.docker.com/desktop/) - easiest and preferred
   - 🍎 If you are working on a Mac with an Apple chip—Docker Desktop is the easiest option:
@@ -43,8 +42,9 @@ Install ONE of the following on a VM or locally!
 Open up a command prompt or terminal.  Change the current directory in the terminal to the `k8s/provision` folder in this repo.
 - Run the following commands:
     - Create all the namespaces: `kubectl apply -f namespaces.yaml`
-    - Install the NGINX Gateway Resources: `kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.0.0/standard-install.yaml`
-    - Install the NGINX Gateway: `helm install ngf oci://ghcr.io/nginxinc/charts/nginx-gateway-fabric --create-namespace -n nginx-gateway`
+    - Install the NGINX Ingress Controller: `kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.9.5/deploy/static/provider/cloud/deploy.yaml` 
+
+**Important:** For this activity we are using `Ingress` instead of the newer `Gateway API`.  The core concepts are the same, but ingress is more simplistic and easier to learn.  
 
 ## 3. Configure your hosts file.
 Go to your hosts file (if on Windows) and add the following entries.  The nginx ingress controller uses host headers for all routing.  Doing this will allow you to easily access the application running on your k8s cluster.
@@ -57,23 +57,6 @@ Go to your hosts file (if on Windows) and add the following entries.  The nginx 
 127.0.0.1       randomquotesprod.local
 127.0.0.1       argocd.local
 ```
-
-## 3. Install Argo
-
-This will install ArgoCD on your cluster.  Perfect for poking around!
-
-- Install ArgoCD
-    - Run `kubectl create namespace argocd`
-    - Run `kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml`
-    - Change the current directory in the terminal to the `k8s/provision` folder in this repo.
-    - Run `kubectl apply -n argocd -f argocd-gateway.yaml`
-- To access ArgoCD UI
-    - To login
-        - URL is https://argocd.local
-        - You will likely get a cert error, go ahead and proceed
-        - Username is admin
-        - Run `kubectl get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' --namespace argocd` to get the password.  
-        - Please note it is base64, which you will need to decode.  You can do that via an online editor, or PowerShell `[System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String("blahblahblah"))`
 
 # Learning Sessions
 
@@ -89,14 +72,17 @@ These instructions will deploy the following to the default namespace.
 
 - Secret
 - Deployment (Image)
-- ClusterIp Service
+- ClusterIP Service
 - Gateway Listener
 - HTTP Route
 
 To perform the deployment do the following:
 - Go to https://hub.docker.com/r/bobjwalker99/randomquotes-k8s/tags and find the latest version tag (0.1.3 for example).  Update the `image` entry in the randomquotes-deployment.yaml file.
 - Open up a command prompt or terminal.  Change the current directory in the terminal to the `k8s/base` folder in this repo. 
+- Run `kubectl apply -f randomquotes-secrets.yaml`
 - Run `kubectl apply -f randomquotes-deployment.yaml`
+
+**Important:** The secret must be in a separate file because later activities we will use kustomize, which will manage the secret for us.  If you were only using manifest files, I'd recommend combining the two.
 
 It might take a moment for the deployment to finish.  I like to check the status of the pods.  Run `kubectl get pods` until the randomquotes pod shows up as healthy.
 
@@ -125,7 +111,21 @@ We are going to deploy to all four namespaces.  The instructions are the same, s
 
 ## 3. Third Activity - ArgoCD
 
-This activity will happen only if we have enough time.  We will install and configure ArgoCD so we can compare and contrast the two.
+This will install ArgoCD on your cluster and configure an application to deploy.
+
+- Install ArgoCD
+    - Run `kubectl create namespace argocd`
+    - Run `kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml`
+- To access ArgoCD UI
+    - Run kubectl port-forward svc/argocd-server -n argocd 8080:443
+        - **Important** The port forwarding will only work while that window is open.
+        - If you want to, you can mess with ingress rules, but this is the quick and dirty approach to getting going.
+    - To login
+        - URL is https://argocd.local
+        - You will likely get a cert error, go ahead and proceed
+        - Username is admin
+        - Run `kubectl get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' --namespace argocd` to get the password.  
+        - Please note it is base64, which you will need to decode.  You can do that via an online editor, or PowerShell `[System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String("blahblahblah"))`
 
 - Configure first application 
     - Click the `New App` button

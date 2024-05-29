@@ -10,6 +10,6 @@ images:
 
 patches:
  - target:
-    kind: HTTPRoute
-    name: randomquotes-gateway-route-nginx
+      kind: Ingress
+      name: randomquotes-ingress-nginx
    path: randomquotes-ingress-nginx.yaml
