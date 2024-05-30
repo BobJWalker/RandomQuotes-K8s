@@ -17,11 +17,23 @@ The Docker Container is built using a GitHub action and it is pushed to Docker H
 
 You can find the docker repository here: https://hub.docker.com/r/bobjwalker99/randomquotes-k8s/tags.
 
+# Forking this repo
+
+Feel free to fork the repo for your own K8s testing and learning.  A few quick notes:
+
+- The primary build is found in `.github/workflows/build.yml`
+- The DockerFile is found in `.src/RandomQuotes.Web` - it injects the version from the build into the container itself.
+- All the Kubernetes items are found in the `k8s` folder.
+   - Base - contains all the basic configuration.
+   - Overlays - Kustomize overlays, one for each environment.
+   - Charts - The Helm chart.
+   - Provision - The core manifest files used to provision a new cluster.  
+
 If you fork this repo you will need to set the following repo secrets:
 
 - `DOCKERHUB_PAT_USERNAME` - your username
 - `DOCKERHUB_PAT` - the PAT of your user
-- `DOCKERHUB_REPO` - the docker hub repo to store the container
+- `DOCKERHUB_REPO` - the docker hub repo to store the container - this really isn't a secret, but I made it one so you wouldn't have to modify the build
 
 # Configuration
 
